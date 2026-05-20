@@ -9,6 +9,9 @@ import streamlit as st
 
 APP_URL = "https://omsb2blimitation-workaround-csv-split.streamlit.app/"
 ASSET_DIR = Path(__file__).parent / "assets"
+SAFETY_WARNING = (
+    "FOR B2B FILE SPLIT USE ONLY! DONT UPLOAD ANY B2C OR SENSETIVE DATA HERE!"
+)
 
 
 class AppError(Exception):
@@ -156,8 +159,21 @@ def show_error(error: Exception) -> None:
         st.error("An unexpected error occurred. Please upload the file again.")
 
 
+def render_safety_warning() -> None:
+    """Render a prominent warning banner at the top of each page."""
+    st.markdown(
+        f"""
+        <div class="safety-warning">
+            {SAFETY_WARNING}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_splitter() -> None:
     """Render the main CSV splitting tool."""
+    render_safety_warning()
     st.title("CSV Splitter")
     st.caption("Upload a CSV file, split it by row count, and download a ZIP.")
 
@@ -206,6 +222,7 @@ def render_splitter() -> None:
 
 def render_user_guide() -> None:
     """Render a plain-language guide with operation images and notes."""
+    render_safety_warning()
     st.title("User Guide")
     st.caption("A simple guide for splitting large CSV files.")
 
@@ -274,6 +291,20 @@ st.markdown(
         background-color: #1d4ed8;
         border-color: #1d4ed8;
         color: #ffffff;
+    }
+
+    .safety-warning {
+        background-color: #b91c1c;
+        border: 3px solid #7f1d1d;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        line-height: 1.35;
+        margin: 0 0 1.25rem 0;
+        padding: 1rem 1.1rem;
+        text-align: center;
+        text-transform: uppercase;
     }
     </style>
     """,
