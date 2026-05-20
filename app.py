@@ -12,7 +12,7 @@ class AppError(Exception):
 
 
 class EmptyFileError(AppError):
-    """Raised when the uploaded CSV has no content."""
+    """Raised when the uploaded CSV has no usable data rows."""
 
 
 class InvalidFormatError(AppError):
@@ -66,6 +66,16 @@ def read_data_block(source_file, rows_per_file: int) -> list[bytes]:
     return lines
 
 
+def is_blank_line(line: bytes) -> bool:
+    """Return True when a physical line contains only whitespace or delimiters."""
+    return line.replace(b",", b"").strip() == b""
+
+
+def has_data_row(lines: list[bytes]) -> bool:
+    """Return True when at least one line contains non-empty CSV data."""
+    return any(not is_blank_line(line) for line in lines)
+
+
 def split_csv_to_zip(uploaded_file, rows_per_file: int) -> tuple[bytes, int, int]:
     """
     Split one uploaded CSV and return a ZIP payload.
@@ -85,19 +95,30 @@ def split_csv_to_zip(uploaded_file, rows_per_file: int) -> tuple[bytes, int, int
     if not header:
         raise EmptyFileError("The uploaded CSV is empty. Please upload another file.")
 
+    if is_blank_line(header):
+        raise EmptyFileError(
+            "The uploaded CSV has no header or data rows. Please upload another file."
+        )
+
     zip_buffer = BytesIO()
     part_count = 0
     total_rows = 1
+    found_data_row = False
 
     try:
         with ZipFile(zip_buffer, mode="w", compression=ZIP_DEFLATED) as zip_file:
             while True:
                 data_lines = read_data_block(uploaded_file, rows_per_file)
                 total_rows += len(data_lines)
+                found_data_row = found_data_row or has_data_row(data_lines)
 
-                # A header-only CSV still creates one output file with just the header.
                 if not data_lines and part_count > 0:
                     break
+
+                if not data_lines and part_count == 0:
+                    raise EmptyFileError(
+                        "The uploaded CSV has a header but no data rows. Please upload another file."
+                    )
 
                 part_count += 1
                 part_name = f"part_{part_count:03d}.csv"
@@ -109,9 +130,16 @@ def split_csv_to_zip(uploaded_file, rows_per_file: int) -> tuple[bytes, int, int
                 if len(data_lines) < rows_per_file:
                     break
     except Exception as exc:
+        if isinstance(exc, AppError):
+            raise
         raise ReadFileError(
             "Failed to split the CSV. Please check the file and upload it again."
         ) from exc
+
+    if not found_data_row:
+        raise EmptyFileError(
+            "The uploaded CSV has no data rows. Please upload another file."
+        )
 
     return zip_buffer.getvalue(), part_count, total_rows
 
