@@ -11,12 +11,17 @@ A minimal Streamlit app for splitting `.csv` files into smaller `.csv` files and
 - Download all split files as one ZIP
 - Basic error handling for empty files, invalid row counts, read failures, and wrong file formats
 - CSV content is copied as raw bytes without parsing fields or converting formats
+- Built-in User Guide page with access link, operation images, and usage notes
 
 ## Project Structure
 
 ```text
 .
 ├── .gitignore
+├── assets/
+│   ├── guide_step_1_upload.png
+│   ├── guide_step_2_rows.png
+│   └── guide_step_3_download.png
 ├── app.py
 ├── requirements.txt
 └── README.md
@@ -43,6 +48,7 @@ http://localhost:8501
 
 ```text
 .gitignore
+assets/
 app.py
 requirements.txt
 README.md
