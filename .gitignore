@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+streamlit.log
+test_input/
+test_output/
+test_output_csv/
+test_output_csv_fast/
+.streamlit/secrets.toml
