@@ -1,18 +1,16 @@
-# Excel Splitter
+# CSV Splitter
 
-A minimal Streamlit app for splitting `.xlsx` files into smaller `.xlsx` files and downloading the result as a ZIP archive.
+A minimal Streamlit app for splitting `.csv` files into smaller `.csv` files and downloading the result as a ZIP archive.
 
 ## Features
 
-- Upload an `.xlsx` file
+- Upload a `.csv` file
 - Enter rows per output file, excluding the header
-- Optionally enter a sheet name
-- Leave sheet name blank to use the first sheet
 - Keep the header row in every output file
-- Create files named `part_001.xlsx`, `part_002.xlsx`, ...
+- Create files named `part_001.csv`, `part_002.csv`, ...
 - Download all split files as one ZIP
-- Basic error handling for empty files, missing sheets, invalid row counts, read failures, and wrong file formats
-- Temporary input and split files are cleaned automatically after processing
+- Basic error handling for empty files, invalid row counts, read failures, and wrong file formats
+- CSV content is copied as raw bytes without parsing fields or converting formats
 
 ## Project Structure
 
@@ -66,4 +64,4 @@ app.py
 
 - The app is public by default on Streamlit Community Cloud.
 - No login or password is required by this app.
-- Very large workbooks may take longer depending on Community Cloud memory and CPU limits.
+- The app treats one physical line as one CSV row. CSV fields containing embedded line breaks are not specially parsed.
